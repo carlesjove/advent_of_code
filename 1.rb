@@ -1,18 +1,23 @@
 require "pry"
 
 class ExpenseProcessor
-  def initialize(expenses)
+  def initialize(expenses, group:)
     @expenses = expenses
+    @group = group
   end
 
-  def find_pair
-    all_pairs = @expenses.product(@expenses)
-    pairs = all_pairs.select{|a,b| a + b == 2020 }
-    pairs.first.sort
+  def find_group
+    all_groups = @expenses
+    (@group - 1).times do
+      all_groups = all_groups.product(@expenses)
+    end
+    all_groups.map!(&:flatten)
+    groups = all_groups.select{|a| a.inject(&:+) == 2020 }
+    groups.first.sort
   end
 
   def result
-    find_pair.inject(&:*)
+    find_group.inject(&:*)
   end
 end
 
@@ -20,7 +25,7 @@ end
 require "minitest/autorun"
 
 class TestExpensesProcessor < Minitest::Test
-  def test_it_works
+  def test_it_works_for_pairs
     expenses = [
       1721,
       979,
@@ -30,10 +35,26 @@ class TestExpensesProcessor < Minitest::Test
       1456,
     ]
 
-    processor = ExpenseProcessor.new(expenses)
+    processor = ExpenseProcessor.new(expenses, group: 2)
 
-    assert_equal [299, 1721], processor.find_pair
+    assert_equal [299, 1721], processor.find_group
     assert_equal 514579, processor.result
+  end
+
+  def test_it_works_for_triplets
+    expenses = [
+      1721,
+      979,
+      366,
+      299,
+      675,
+      1456,
+    ]
+
+    processor = ExpenseProcessor.new(expenses, group: 3)
+
+    assert_equal [366, 675, 979], processor.find_group
+    assert_equal 241861950, processor.result
   end
 end
 
@@ -240,5 +261,8 @@ expenses = [
   1224,
 ]
 
-puts "The result is:"
-puts ExpenseProcessor.new(expenses).result
+puts "The result for 1.1 is:"
+puts ExpenseProcessor.new(expenses, group: 2).result
+
+puts "The result for 1.2 is:"
+puts ExpenseProcessor.new(expenses, group: 3).result
