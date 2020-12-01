@@ -7,11 +7,7 @@ class ExpenseProcessor
   end
 
   def find_group
-    all_groups = @expenses
-    (@group - 1).times do
-      all_groups = all_groups.product(@expenses)
-    end
-    all_groups.map!(&:flatten)
+    all_groups = @expenses.combination(@group)
     groups = all_groups.select{|a| a.inject(&:+) == 2020 }
     groups.first.sort
   end
