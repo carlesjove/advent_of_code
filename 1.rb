@@ -8,8 +8,7 @@ class ExpenseProcessor
 
   def find_group
     all_groups = @expenses.combination(@group)
-    groups = all_groups.select{|a| a.inject(&:+) == 2020 }
-    groups.first.sort
+    all_groups.find { |a| a.inject(&:+) == 2020 } &.sort
   end
 
   def result
